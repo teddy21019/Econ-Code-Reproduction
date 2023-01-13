@@ -51,6 +51,7 @@ class Gene(ABC):
         """
         ...
     def __mul__(self, gene_2) -> Tuple['Gene', 'Gene']:
+        """Syntax candy for breeding"""
         return self.breed(gene_2)
 
 @dataclass(order=True)
@@ -70,6 +71,7 @@ class EvaluableGene:
     fitness : float = field(default=None, compare=True) # compare=True so that the > < can be used on comparing performance
 
 
+
 class GeneticAlgorithm(ABC):
     """
         The GA class takes a list of agent (in particular an `EvaluableGene` interface objects)
@@ -78,9 +80,12 @@ class GeneticAlgorithm(ABC):
     def __init__(self, agents: List[EvaluableGene]):
         self.agents = agents
 
+    def set_evaluation_function(self, fn: Callable[..., float]):
+        self.set_evaluation_function = fn
+
 
     @abstractmethod
-    def register_agents(self, agents:Union[EvaluableGene, List[EvaluableGene]]):
+    def register_agents(self, agents:Union[EvaluableGene, List[EvaluableGene]]):    ## change to iterable interface?
         ... 
 
     @abstractmethod
@@ -89,18 +94,23 @@ class GeneticAlgorithm(ABC):
     
     @abstractmethod
     def reproduction_stage(self):
+        """ Choose (with repetition) genes with better fitness value.
+            The GA object is now an mating pool.
+        """
         ...
 
     @abstractmethod
     def crossover_stage(self):
+        """ From the mating pool, random pair and make them breed, get offsprings"""
         ...
 
     @abstractmethod
     def mutation_stage(self):
+        """ Mutation on offsprings"""
         ...
 
     @abstractmethod
-    def election_stage(self, evaluation_fn: Callable[..., float]):
+    def election_stage(self):
         """
             For each of the offspring, evaluate the potential fitness according to a callback function
             passed from the source ( the main model ). 

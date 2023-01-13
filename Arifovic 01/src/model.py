@@ -1,3 +1,4 @@
+from typing import Callable
 import mesa 
 from dataclasses import dataclass
 from src.base.GA import GeneticAlgorithm, Gene
@@ -12,4 +13,8 @@ class CurrencySubstitutionModel(mesa.Model):
                 ):
         pass
 
-    
+    def gene_evaluation_fn(self) ->  Callable[..., float]:
+        def ev_fn(gene:Gene) -> float:
+            fitness = None
+            return fitness
+        return ev_fn

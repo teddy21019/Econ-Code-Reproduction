@@ -1,4 +1,3 @@
-import imp
 import mesa
 from src.base.GA import EvaluableGene
 
