@@ -1,14 +1,32 @@
 from dataclasses import dataclass, field
 from typing import Callable, List, Tuple, Union
 import numpy as np 
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractclassmethod
 
-@dataclass
-class Gene(ABC):
+class BaseGene(ABC):
     """
         Gene is used to store the genetic characteristic of an agent.
     """
-    string: np.array
+    def __init__(self, string = None):
+        if string is None:
+            self.string = self.generate_gene()  
+            return 
+        
+        if not self.validate(string):
+            raise TypeError(f"string type {type(string)} not allowed.")
+        
+        self.string = string
+
+        return
+
+
+    @abstractclassmethod
+    def generate_gene(cls):
+        ...
+    
+    @abstractclassmethod
+    def validate(cls, string) -> bool:
+        ...
 
     @abstractmethod
     def encode(self):
@@ -19,7 +37,7 @@ class Gene(ABC):
 
 
     @abstractmethod
-    def breed(self, gene2:'Gene')->Tuple['Gene', 'Gene']:
+    def breed(self, gene2:'BaseGene')->Tuple['BaseGene', 'BaseGene']:
         """
             Introduction
             ===========
@@ -39,7 +57,7 @@ class Gene(ABC):
         ...
     
     @abstractmethod
-    def mutate(self) -> 'Gene':
+    def mutate(self) -> 'BaseGene':
         """
         Introduction
         ======
@@ -50,7 +68,7 @@ class Gene(ABC):
         A Gene object, different to the current one
         """
         ...
-    def __mul__(self, gene_2) -> Tuple['Gene', 'Gene']:
+    def __mul__(self, gene_2) -> Tuple['BaseGene', 'BaseGene']:
         """Syntax candy for breeding"""
         return self.breed(gene_2)
 
@@ -67,12 +85,12 @@ class EvaluableGene:
 
         This is the dependency inversion principle. 
     """
-    gene : Gene
+    gene : BaseGene
     fitness : float = field(default=None, compare=True) # compare=True so that the > < can be used on comparing performance
 
 
 
-class GeneticAlgorithm(ABC):
+class BaseGeneticAlgorithm(ABC):
     """
         The GA class takes a list of agent (in particular an `EvaluableGene` interface objects)
         The agents must have a gene that performs breed, mutate, encode, ... etc. 
