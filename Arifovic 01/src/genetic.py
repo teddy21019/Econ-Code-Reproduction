@@ -1,6 +1,6 @@
 from base64 import encode
 import random
-from typing import Tuple
+from typing import Callable, Tuple, Union, List
 
 from mesa import Agent
 import src.base.GA as GA 
@@ -67,7 +67,48 @@ class AGene(GA.BaseGene):
         return AGene(new_string)
 
 
-
+ValidationFunction = Callable[[GA.BaseGene], bool]
 
 class AGeneticAlgorithm(GA.BaseGeneticAlgorithm):
-    pass 
+    
+    def register_validation_fn(self, validation_fn: ValidationFunction):
+        self.validate_gene_fn = validation_fn
+
+
+    def register_agents(self, new_agents: Union[GA.EvaluableGene, List[GA.EvaluableGene]]):
+        if type(new_agents) is list:
+            self.agents+=new_agents
+            return 
+
+        self.agents.append(new_agents)
+        return 
+
+    def add_agent(self, 
+                    agent:GA.EvaluableGene, 
+                    custom_validation_fn: ValidationFunction = None): 
+
+        validation_fn : ValidationFunction = self.validate_gene
+        if custom_validation_fn is not None:
+            validation_fn = custom_validation_fn
+        if not validation_fn(agent.gene):
+            raise ValueError("Could not validate the agent's gene"):
+        
+        self.agents.append(agent)
+            
+    def remove_agents(self, agents: Union[GA.EvaluableGene, List[GA.EvaluableGene]]):
+        if type(agents) is list:
+            for agent in agents:
+                try:
+                    self.agents.remove(agent)
+                except ValueError as ve:
+                    raise ValueError("Removing gene not in list!")
+            return
+        
+        ## validate type??
+        self.agents.remove(agents)
+        try:
+                self.agents.remove(agent)
+        except ValueError as ve:
+            raise ValueError("Removing gene not in list!")
+        return
+        
