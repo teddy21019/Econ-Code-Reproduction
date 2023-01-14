@@ -74,41 +74,39 @@ class AGeneticAlgorithm(GA.BaseGeneticAlgorithm):
     def register_validation_fn(self, validation_fn: ValidationFunction):
         self.validate_gene_fn = validation_fn
 
-
-    def register_agents(self, new_agents: Union[GA.EvaluableGene, List[GA.EvaluableGene]]):
-        if type(new_agents) is list:
-            self.agents+=new_agents
-            return 
-
-        self.agents.append(new_agents)
-        return 
-
     def add_agent(self, 
                     agent:GA.EvaluableGene, 
-                    custom_validation_fn: ValidationFunction = None): 
+                    custom_validation_fn: ValidationFunction = None)->None: 
 
-        validation_fn : ValidationFunction = self.validate_gene
+        ## In case there is a custom validation function for the agent.
+        validation_fn : ValidationFunction = self.validate_gene_fn
         if custom_validation_fn is not None:
             validation_fn = custom_validation_fn
+
         if not validation_fn(agent.gene):
-            raise ValueError("Could not validate the agent's gene"):
+            raise ValueError("Could not validate the agent's gene")
         
+        ## only append if successfully validated
         self.agents.append(agent)
             
+
+    def register_agents(self, new_agents: Union[GA.EvaluableGene, List[GA.EvaluableGene]]) -> None:
+        if type(new_agents) is list:
+            [self.add_agent(agent) for agent in new_agents]
+            return 
+
+        self.add_agent(new_agents)
+        return 
+
+    def remove_agent(self, agent:GA.EvaluableGene):
+        ## check if in list
+        try:
+            self.agents.remove(agent)
+        except:
+            raise ValueError("Removing agent not in pool")
+        
     def remove_agents(self, agents: Union[GA.EvaluableGene, List[GA.EvaluableGene]]):
         if type(agents) is list:
-            for agent in agents:
-                try:
-                    self.agents.remove(agent)
-                except ValueError as ve:
-                    raise ValueError("Removing gene not in list!")
+            [self.remove_agent(agent) for agent in agents]
             return
-        
-        ## validate type??
-        self.agents.remove(agents)
-        try:
-                self.agents.remove(agent)
-        except ValueError as ve:
-            raise ValueError("Removing gene not in list!")
-        return
-        
+        self.remove_agent(agents) 
