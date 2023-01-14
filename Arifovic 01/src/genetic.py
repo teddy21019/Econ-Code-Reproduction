@@ -1,12 +1,10 @@
-from base64 import encode
 import random
 from typing import Callable, Tuple, Union, List
 
-from mesa import Agent
-import src.base.GA as GA 
+from src.base.GA import BaseGene, BaseGeneticAlgorithm, EvaluableGene
 import numpy as np
 
-class AGene(GA.BaseGene):
+class AGene(BaseGene):
 
     N:int = 30
     CONSUMPTION_SEG:int = 20
@@ -67,15 +65,15 @@ class AGene(GA.BaseGene):
         return AGene(new_string)
 
 
-ValidationFunction = Callable[[GA.BaseGene], bool]
+ValidationFunction = Callable[[BaseGene], bool]
 
-class AGeneticAlgorithm(GA.BaseGeneticAlgorithm):
+class AGeneticAlgorithm(BaseGeneticAlgorithm):
     
     def register_validation_fn(self, validation_fn: ValidationFunction):
         self.validate_gene_fn = validation_fn
 
     def add_agent(self, 
-                    agent:GA.EvaluableGene, 
+                    agent:EvaluableGene, 
                     custom_validation_fn: ValidationFunction = None)->None: 
 
         ## In case there is a custom validation function for the agent.
@@ -83,14 +81,14 @@ class AGeneticAlgorithm(GA.BaseGeneticAlgorithm):
         if custom_validation_fn is not None:
             validation_fn = custom_validation_fn
 
-        if not validation_fn(agent.gene):
+        if not validation_fn(agent.gene.string):
             raise ValueError("Could not validate the agent's gene")
         
         ## only append if successfully validated
         self.agents.append(agent)
             
 
-    def register_agents(self, new_agents: Union[GA.EvaluableGene, List[GA.EvaluableGene]]) -> None:
+    def register_agents(self, new_agents: Union[EvaluableGene, List[EvaluableGene]]) -> None:
         if type(new_agents) is list:
             [self.add_agent(agent) for agent in new_agents]
             return 
@@ -98,15 +96,27 @@ class AGeneticAlgorithm(GA.BaseGeneticAlgorithm):
         self.add_agent(new_agents)
         return 
 
-    def remove_agent(self, agent:GA.EvaluableGene):
+    def remove_agent(self, agent:EvaluableGene):
         ## check if in list
         try:
             self.agents.remove(agent)
         except:
             raise ValueError("Removing agent not in pool")
         
-    def remove_agents(self, agents: Union[GA.EvaluableGene, List[GA.EvaluableGene]]):
+    def remove_agents(self, agents: Union[EvaluableGene, List[EvaluableGene]]):
         if type(agents) is list:
             [self.remove_agent(agent) for agent in agents]
             return
         self.remove_agent(agents) 
+    
+    def reproduction_stage(self):
+        return super().reproduction_stage()
+    
+    def crossover_stage(self):
+        return super().crossover_stage()
+
+    def mutation_stage(self):
+        return super().mutation_stage()
+
+    def election_stage(self):
+        return super().election_stage()
