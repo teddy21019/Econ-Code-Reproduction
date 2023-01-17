@@ -120,3 +120,13 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
 
     def election_stage(self):
         return super().election_stage()
+    
+
+if __name__ == "__main__":
+    
+    agent_to_register = [EvaluableGene(AGene()) for _ in range(10)]
+    ga = AGeneticAlgorithm() 
+
+    ga.register_validation_fn(AGene.validate)
+
+    ga.register_agents(agent_to_register)
