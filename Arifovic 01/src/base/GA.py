@@ -95,11 +95,12 @@ class BaseGeneticAlgorithm(ABC):
         The GA class takes a list of agent (in particular an `EvaluableGene` interface objects)
         The agents must have a gene that performs breed, mutate, encode, ... etc. 
     """
-    def __init__(self, agents: List[EvaluableGene]):
-        self.agents:List[EvaluableGene] = agents
+    def __init__(self):
+        self.agents = []
 
     def set_evaluation_function(self, fn: Callable[..., float]):
         self.set_evaluation_function = fn
+        return self
 
 
     @abstractmethod
