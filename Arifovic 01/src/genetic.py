@@ -110,9 +110,17 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
             return
         self.remove_agent(agents) 
     
-    def reproduction_stage(self):
-        return super().reproduction_stage()
-    
+    def reproduction_stage(self) -> None:
+        N_TOURNAMENT = len(self.agents)
+
+        self.winner_agents = []
+        for _ in range(N_TOURNAMENT):
+            pairs_to_compare = random.sample(self.agents, 2)
+            self.winner_agents.append(
+                max(pairs_to_compare, key=lambda a : a.fitness)
+            )
+        return
+
     def crossover_stage(self):
         return super().crossover_stage()
 

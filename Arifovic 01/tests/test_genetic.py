@@ -1,6 +1,19 @@
+import random
 import numpy as np
 import pytest
 from src.genetic import AGene, AGeneticAlgorithm, EvaluableGene
+
+@pytest.fixture
+def ga_sample():
+
+    agent_to_register = [EvaluableGene(AGene(), random.randint(1,10)) for _ in range(30)]
+    ga = AGeneticAlgorithm() 
+
+    ga.register_validation_fn(AGene.validate)
+
+    ga.register_agents(agent_to_register)
+
+    return ga
 
 def test_encode():
     gene = AGene()
@@ -95,3 +108,12 @@ def test_ga_same_gene_diff_obj():
     assert agents_to_register[0] in ga.agents
 
 
+def test_reproduction_stage(ga_sample: AGeneticAlgorithm):
+    def get_fitness_sum(l):
+        return sum([agent.fitness for agent in l])
+    pre_fitness_sum = get_fitness_sum(ga_sample.agents)
+
+    ga_sample.reproduction_stage()
+
+    post_fitness_sum = get_fitness_sum(ga_sample.winner_agents)
+    assert pre_fitness_sum < post_fitness_sum

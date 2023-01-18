@@ -96,7 +96,7 @@ class BaseGeneticAlgorithm(ABC):
         The agents must have a gene that performs breed, mutate, encode, ... etc. 
     """
     def __init__(self):
-        self.agents = []
+        self.agents : List[EvaluableGene] = []
 
     def set_evaluation_function(self, fn: Callable[..., float]):
         self.set_evaluation_function = fn
