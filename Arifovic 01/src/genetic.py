@@ -1,6 +1,8 @@
 import random
 from typing import Callable, Tuple, Union, List
 
+import pytest
+
 from src.base.GA import BaseGene, BaseGeneticAlgorithm, EvaluableGene
 import numpy as np
 
@@ -72,6 +74,7 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
         super().__init__()
         self.p_cross = p_cross
         self.p_mut = p_mut
+        self.gene_pool = []
     
     def register_validation_fn(self, validation_fn: ValidationFunction):
         self.validate_gene_fn = validation_fn
@@ -140,7 +143,7 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
         self.families:List[List[EvaluableGene]] = []
         
         for mom, dad in zip(moms, dads):
-            offspring_gene_1, offspring_gene_2 = mom.gene * dad.gene if random.random() < self.p_mut else (mom, dad)
+            offspring_gene_1, offspring_gene_2 = mom.gene * dad.gene if random.random() < self.p_mut else (mom.gene, dad.gene)
             
             self.families.append(
                 [
@@ -168,5 +171,18 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
 
     def election_stage(self):
         for family in self.families:
-            
-           best_two = sorted(family, key= lambda f : f.fitness, reverse=True)[:2]
+            self.gene_pool += family_sort_with_generation(family)
+
+
+
+def family_sort_with_generation(family: List[EvaluableGene]) -> List[EvaluableGene]:
+
+    generation_indicator = [0,0,1,1]
+
+    agent_generation_pair  = zip(family, generation_indicator)
+    try:
+        sorted_family = sorted(agent_generation_pair, key = lambda pair: (pair[0].fitness, pair[1]), reverse=True )
+    except AttributeError as a:
+        pytest.set_trace()
+        raise a
+    return list(map(lambda x:x[0] ,sorted_family[:2]))

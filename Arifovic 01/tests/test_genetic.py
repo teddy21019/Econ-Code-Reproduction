@@ -1,20 +1,33 @@
 import random
-from tkinter.font import families
 import numpy as np
 import pytest
-from src.genetic import AGene, AGeneticAlgorithm, EvaluableGene
+from src.base.GA import BaseGene
+from src.genetic import AGene, AGeneticAlgorithm, EvaluableGene, family_sort_with_generation
+
+AGENT_N = 1000
+
+
+def eval_func(gene:BaseGene):
+    try:
+        return np.sum(gene.string)
+    except Exception as e:
+        print(gene)
+        raise e
 
 @pytest.fixture
 def ga_sample():
 
-    agent_to_register = [EvaluableGene(AGene(), random.randint(1,10)) for _ in range(30)]
+    agent_to_register = [EvaluableGene(AGene(), random.randint(1,10)) for _ in range(AGENT_N)]
     ga = AGeneticAlgorithm() 
+    ga.set_evaluation_function(eval_func)
 
     ga.register_validation_fn(AGene.validate)
 
     ga.register_agents(agent_to_register)
 
     return ga
+
+
 
 def test_encode():
     gene = AGene()
@@ -146,3 +159,25 @@ def test_mutate(ga_sample: AGeneticAlgorithm):
  
     assert not np.all(first_family[2].gene.string == mutated_first_family[2].gene.string)
     assert np.sum(first_family[3].gene.string != mutated_first_family[3].gene.string) == 1
+
+def test_family_sort_with_generation():
+    mom = EvaluableGene(AGene(), 20)
+    dad = EvaluableGene(AGene(), 15)
+    son = EvaluableGene(AGene(), 20)
+    dau = EvaluableGene(AGene(), 17)
+
+    remaining = family_sort_with_generation([mom, dad, son, dau])
+    
+
+    assert (mom.gene.string == remaining[1].gene.string).all()
+    assert (son.gene.string == remaining[0].gene.string).all()
+
+def test_whole_process_num(ga_sample: AGeneticAlgorithm):
+
+    ga_sample.reproduction_stage()
+    ga_sample.crossover_stage()
+    ga_sample.mutation_stage()
+    ga_sample.election_stage()
+
+    assert len(ga_sample.gene_pool) == AGENT_N
+
