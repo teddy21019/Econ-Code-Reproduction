@@ -99,7 +99,7 @@ class BaseGeneticAlgorithm(ABC):
         self.agents : List[EvaluableGene] = []
 
     def set_evaluation_function(self, fn: Callable[..., float]):
-        self.set_evaluation_function = fn
+        self.evaluation_function: Callable[..., float] = fn
         return self
 
 

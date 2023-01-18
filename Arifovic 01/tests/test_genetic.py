@@ -63,7 +63,7 @@ def test_create_gene():
         assert False
 
 
-def test_mutate():
+def test_crossover():
     for _ in range(10):
         gene_all_true = AGene(np.array([True]*30))
         gene_all_false = AGene(np.array([False]*30))
@@ -117,3 +117,15 @@ def test_reproduction_stage(ga_sample: AGeneticAlgorithm):
 
     post_fitness_sum = get_fitness_sum(ga_sample.winner_agents)
     assert pre_fitness_sum < post_fitness_sum
+
+def test_crossover_stage(ga_sample: AGeneticAlgorithm):
+
+    ga_sample.reproduction_stage()
+    ga_sample.crossover_stage()
+
+    with pytest.raises(AttributeError) : 
+        ga_sample.winner_agents
+    
+    assert len(ga_sample.families) - len(ga_sample.agents) <= 1
+    assert len(random.sample(ga_sample.families, len(ga_sample.families))[0]) == 4
+    assert len([offspring for offspring in ga_sample.families[-1] if offspring.fitness is None])

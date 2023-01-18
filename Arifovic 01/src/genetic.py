@@ -68,6 +68,10 @@ class AGene(BaseGene):
 ValidationFunction = Callable[[BaseGene], bool]
 
 class AGeneticAlgorithm(BaseGeneticAlgorithm):
+    def __init__(self, p_cross:float = 0.6, p_mut:float = 0.033):
+        super().__init__()
+        self.p_cross = p_cross
+        self.p_mut = p_mut
     
     def register_validation_fn(self, validation_fn: ValidationFunction):
         self.validate_gene_fn = validation_fn
@@ -113,7 +117,7 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
     def reproduction_stage(self) -> None:
         N_TOURNAMENT = len(self.agents)
 
-        self.winner_agents = []
+        self.winner_agents : List[EvaluableGene] = []
         for _ in range(N_TOURNAMENT):
             pairs_to_compare = random.sample(self.agents, 2)
             self.winner_agents.append(
@@ -122,7 +126,30 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
         return
 
     def crossover_stage(self):
-        return super().crossover_stage()
+        random.shuffle(self.winner_agents)
+        if not len(self.winner_agents) % 2 == 0:
+            self.winner_agents.pop()
+        
+        N_PARENTS = int (len(self.winner_agents) / 2 )
+
+        moms = self.winner_agents[:N_PARENTS]
+        dads = self.winner_agents[N_PARENTS:]
+        assert len(moms) == len(dads)
+        del self.winner_agents
+
+        self.families:List[EvaluableGene] = []
+        
+        for mom, dad in zip(moms, dads):
+            offspring_gene_1, offspring_gene_2 = mom.gene * dad.gene
+            self.families.append(
+                [
+                    mom, 
+                    dad, 
+                    EvaluableGene(offspring_gene_1),
+                    EvaluableGene(offspring_gene_2)
+                ]
+            )
+        return 
 
     def mutation_stage(self):
         return super().mutation_stage()
