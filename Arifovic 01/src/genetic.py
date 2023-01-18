@@ -58,7 +58,7 @@ class AGene(BaseGene):
         return AGene(offspring_string_1), AGene(offspring_string_2)
     
     def mutate(self) -> 'AGene':
-        random_position = random.randint(0, self.N)
+        random_position = random.randint(0, self.N - 1)
         new_string = self.string.copy()
         new_string[random_position] = not new_string[random_position]
 
@@ -137,7 +137,7 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
         assert len(moms) == len(dads)
         del self.winner_agents
 
-        self.families:List[EvaluableGene] = []
+        self.families:List[List[EvaluableGene]] = []
         
         for mom, dad in zip(moms, dads):
             offspring_gene_1, offspring_gene_2 = mom.gene * dad.gene
@@ -152,7 +152,18 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
         return 
 
     def mutation_stage(self):
-        return super().mutation_stage()
+        def mutate_family(family: List[EvaluableGene]) -> List[EvaluableGene]:
+            mutated_offspring: List[EvaluableGene] = []
+            for offspring in family[2:] :
+                new_gene = offspring.gene.mutate() if random.random() < self.p_mut else offspring.gene
+                new_offspring = EvaluableGene(new_gene)
+                mutated_offspring.append(new_offspring)
+            return family[:2] + mutated_offspring
+
+        self.families = [mutate_family(fam) for fam in self.families]
+
+        return
+
 
     def election_stage(self):
         return super().election_stage()
