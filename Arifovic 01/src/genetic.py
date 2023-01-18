@@ -140,7 +140,8 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
         self.families:List[List[EvaluableGene]] = []
         
         for mom, dad in zip(moms, dads):
-            offspring_gene_1, offspring_gene_2 = mom.gene * dad.gene
+            offspring_gene_1, offspring_gene_2 = mom.gene * dad.gene if random.random() < self.p_mut else (mom, dad)
+            
             self.families.append(
                 [
                     mom, 
@@ -156,7 +157,7 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
             mutated_offspring: List[EvaluableGene] = []
             for offspring in family[2:] :
                 new_gene = offspring.gene.mutate() if random.random() < self.p_mut else offspring.gene
-                new_offspring = EvaluableGene(new_gene)
+                new_offspring = EvaluableGene(new_gene, self.evaluation_function(new_gene))
                 mutated_offspring.append(new_offspring)
             return family[:2] + mutated_offspring
 
@@ -166,5 +167,6 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
 
 
     def election_stage(self):
-        return super().election_stage()
-    
+        for family in self.families:
+            
+           best_two = sorted(family, key= lambda f : f.fitness, reverse=True)[:2]

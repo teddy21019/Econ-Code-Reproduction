@@ -13,7 +13,7 @@ class CurrencySubstitutionModel(mesa.Model):
                 ):
         pass
 
-    def gene_evaluation_fn(self) ->  Callable[..., float]:
+    def gene_evaluation_fn(self) ->  Callable[[BaseGene], float]:
         def ev_fn(gene:BaseGene) -> float:
             fitness = None
             return fitness
