@@ -1,4 +1,5 @@
 import random
+from tkinter.font import families
 import numpy as np
 import pytest
 from src.genetic import AGene, AGeneticAlgorithm, EvaluableGene
@@ -129,3 +130,19 @@ def test_crossover_stage(ga_sample: AGeneticAlgorithm):
     assert len(ga_sample.families) - len(ga_sample.agents) <= 1
     assert len(random.sample(ga_sample.families, len(ga_sample.families))[0]) == 4
     assert len([offspring for offspring in ga_sample.families[-1] if offspring.fitness is None])
+
+
+def test_mutate(ga_sample: AGeneticAlgorithm):
+    ga_sample.p_mut = 1
+
+    ga_sample.reproduction_stage()
+    ga_sample.crossover_stage()
+
+    first_family = ga_sample.families[0]
+
+    ga_sample.mutation_stage()
+
+    mutated_first_family = ga_sample.families[0]
+ 
+    assert not np.all(first_family[2].gene.string == mutated_first_family[2].gene.string)
+    assert np.sum(first_family[3].gene.string != mutated_first_family[3].gene.string) == 1
