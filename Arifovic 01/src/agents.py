@@ -10,3 +10,15 @@ class GA_Agent(mesa.Agent):
 
         self.evaluable_gene: EvaluableGene = evaluable_gene
 
+class YoungAgent(GA_Agent):
+    pass
+
+class OldAgent(GA_Agent):
+    pass
+
+def get_old(young: YoungAgent):
+    return OldAgent(
+        unique_id=young.unique_id,
+        model = young.model,
+        evaluable_gene=young.evaluable_gene
+    )
