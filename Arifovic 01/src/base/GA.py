@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from typing import Callable, List, Tuple, Union
-import numpy as np 
 from abc import ABC, abstractmethod, abstractclassmethod
 
 class BaseGene(ABC):
