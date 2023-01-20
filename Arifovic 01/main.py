@@ -14,7 +14,7 @@ def main():
                 n_agents            =   30,
                 G_1                 =   10,
                 G_2                 =   1,
-                scheduler=abm_schedular)
+                scheduler           =   abm_schedular)
     
     model.random.shuffle
 
