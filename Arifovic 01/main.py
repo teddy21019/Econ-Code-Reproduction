@@ -1,12 +1,13 @@
 from src.genetic import AGene, AGeneticAlgorithm
+import numpy as np
 
 from src.model import CurrencySubstitutionModel
-
-from src.scheduler import OGActivation
+from mesa.time import RandomActivationByType
 
 def main():
+    ga = AGeneticAlgorithm(p_cross=0.6, p_mut=0.33)
 
-    abm_schedular = OGActivation
+    abm_schedular = RandomActivationByType
     
     model = CurrencySubstitutionModel(
                 genetic_algo_class  =   ga, 

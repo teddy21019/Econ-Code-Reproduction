@@ -1,12 +1,13 @@
 from typing import Callable
-import mesa 
-from dataclasses import dataclass
-from src.base.GA import BaseGeneticAlgorithm, BaseGene
+import mesa
+from src.agents import GA_Agent, OldAgent, YoungAgent 
+from src.base.GA import BaseGeneticAlgorithm, BaseGene, EvaluableGene
+from src.genetic import AGene, AGeneticAlgorithm
 
-@dataclass
 class CurrencySubstitutionModel(mesa.Model):
     def __init__(self, 
                 genetic_algo_class : BaseGeneticAlgorithm,
+                scheduler_constructor: Callable[[mesa.Model], mesa.time.BaseScheduler],
                 n_agents: int   = 30,
                 G_1     : float = 10,
                 G_2     : float = 1,
@@ -15,9 +16,20 @@ class CurrencySubstitutionModel(mesa.Model):
         self.n_agents   : int                   = n_agents      ## agents per generation
         self.G_1        : float                 = G_1
         self.G_2        : float                 = G_2
-        self.scheduler  : OGActivation = scheduler_constructor(self)
+        self.scheduler  : mesa.time.RandomActivationByType = scheduler_constructor(self)
 
-    def gene_evaluation_fn(self) ->  Callable[[BaseGene], float]:
+        ## initialize currenct price
+        self.p1 = 1
+        self.p2 = 1
+
+        self.Lp1 = 1
+        self.Lp2 = 1
+
+        self.generate_agents()
+        self.unique_id_generator = (i for i in range(10e5))
+
+
+    def gene_evaluation_fn(self) ->  Callable[..., float]:
         def ev_fn(gene:BaseGene) -> float:
             fitness = None
             return fitness
@@ -33,10 +45,11 @@ class CurrencySubstitutionModel(mesa.Model):
             new_id = next(self.unique_id_generator)
             evaluable_gene = EvaluableGene(AGene())
 
-            a = GA_Agent(
+            a = YoungAgent(
                 unique_id=new_id, 
                 model=self, 
                 evaluable_gene=evaluable_gene)  ## dependency injection of gene+value object
+
             self.scheduler.add(a)
         ## In this step, both scheduler are initialized with young people. 
     
@@ -55,8 +68,14 @@ class CurrencySubstitutionModel(mesa.Model):
         """
 
         ## Agents move with random order
-        self.scheduler.step()
+
+        ## Young agent decodes and calculate consumption/ portfolio
+        self.scheduler.step_type(YoungAgent)   ## In this case is the random-activation-by-type class. 
         
+        ## Evaluate the price of each currency
+        self.calculate_prices()        
+
+        self.scheduler.step_type(OldAgent)
 
     def calculate_prices(self):
         pass
