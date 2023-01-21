@@ -58,22 +58,25 @@ class CurrencySubstitutionModel(mesa.Model):
 
             ## add agents into scheduler
             for _ in range(self.n_agents):
-                new_id = next(self.unique_id_generator)
-                evaluable_gene = EvaluableGene(AGene())
 
-                a = GA_Agent(
-                    unique_id=new_id, 
-                    model=self, 
-                    evaluable_gene=evaluable_gene,  ## dependency injection of gene+value object
-                    endowment_1=10,
-                    endowment_2=1,
-                    gen=gen_num) 
-
+                a = self.new_agent(AGene(), gen_num=0)
                 gen_scheduler.add(a)
             
             # add the scheduler for this generation into the generation_list deque
 
             self.generation_list.appendleft(gen_scheduler)
+
+    def new_agent(self, gene:BaseGene, gen_num:int = 0):
+        new_id = next(self.unique_id_generator)
+        evaluable_gene = EvaluableGene(gene)
+
+        return GA_Agent(
+            unique_id=new_id,
+            model=self,
+            evaluable_gene=evaluable_gene,  ## dependency injection of gene+value object
+            endowment_1=10,
+            endowment_2=1,
+            gen=gen_num)
 
     def step(self):
         """
@@ -99,7 +102,10 @@ class CurrencySubstitutionModel(mesa.Model):
 
         ## at this time, the old agent should already evaluate its fitness 
 
-        self.evolve()
+        gene_pool: List[EvaluableGene]= self.evolve()
+
+        self.new_generation(gene_pool=gene_pool)
+
 
 
 
@@ -109,13 +115,31 @@ class CurrencySubstitutionModel(mesa.Model):
         """
         pass
     
-    def evolve(self):
+    def evolve(self) -> List[EvaluableGene]:
 
         self.ga.clear()
+        self.ga.set_evaluation_function(self.gene_evaluation_fn())
         self.ga.register_agents(
             [agent.evaluable_gene for agent in self.elders]
         )
-        self.evolve()
+        return self.ga.evolve()
+
+
+
+    def new_generation(self, gene_pool:List[EvaluableGene]):
+        
+        ## shift to right, the last element( old ones ) now becomes the first
+        self.generation_list.rotate(1)
+
+        ## new scheduler
+        new_gen_scheduler = self.scheduler_constructor(self)
+
+        for eg in gene_pool:
+            a = self.new_agent(eg.gene)
+            new_gen_scheduler.add(a)
+
+        self.generation_list[0] = new_gen_scheduler
+
 
     @property
     def elders(self) -> List[GA_Agent]:
