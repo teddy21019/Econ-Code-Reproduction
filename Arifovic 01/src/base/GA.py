@@ -85,7 +85,7 @@ class EvaluableGene:
         This is the dependency inversion principle. 
     """
     gene : BaseGene
-    fitness : float = field(default=None, compare=True) # compare=True so that the > < can be used on comparing performance
+    fitness : float = field(default=0, compare=True) # compare=True so that the > < can be used on comparing performance
 
 
 
