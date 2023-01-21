@@ -110,6 +110,9 @@ class BaseGeneticAlgorithm(ABC):
     def remove_agents(self, agents:Union[EvaluableGene, List[EvaluableGene]]):
         ...
     
+    def clear(self):
+        self.agents : List[EvaluableGene] = []
+    
     @abstractmethod
     def reproduction_stage(self):
         """ Choose (with repetition) genes with better fitness value.
@@ -136,5 +139,10 @@ class BaseGeneticAlgorithm(ABC):
             In this way the GA algorithm is decoupled from the main model.
         """
         ...
-        
+    
+    def evolve(self):
+        self.reproduction_stage()
+        self.crossover_stage()
+        self.mutation_stage()
+        self.election_stage()
 

@@ -99,6 +99,8 @@ class CurrencySubstitutionModel(mesa.Model):
 
         ## at this time, the old agent should already evaluate its fitness 
 
+        self.evolve()
+
 
 
     def calculate_prices(self) -> Tuple[float, float]:
@@ -107,4 +109,14 @@ class CurrencySubstitutionModel(mesa.Model):
         """
         pass
     
-    
+    def evolve(self):
+
+        self.ga.clear()
+        self.ga.register_agents(
+            [agent.evaluable_gene for agent in self.elders]
+        )
+        self.evolve()
+
+    @property
+    def elders(self) -> List[GA_Agent]:
+        return self.generation_list[-1].agents # type: ignore
