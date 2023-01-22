@@ -1,6 +1,5 @@
 from collections import deque
-from operator import ge
-from typing import Callable, Deque, Dict, Tuple
+from typing import Callable, Deque, Dict, List, Tuple
 import mesa
 from src.agents import GA_Agent
 from src.base.GA import BaseGeneticAlgorithm, BaseGene, EvaluableGene
@@ -109,7 +108,7 @@ class CurrencySubstitutionModel(mesa.Model):
 
 
 
-    def calculate_prices(self) -> Tuple[float, float]:
+    def calculate_prices(self) -> Tuple[float, float]:   # type: ignore        
         """
             Calculates the currency price for 1 and 2 
         """
