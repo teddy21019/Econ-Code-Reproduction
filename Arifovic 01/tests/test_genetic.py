@@ -142,7 +142,7 @@ def test_crossover_stage(ga_sample: AGeneticAlgorithm):
     
     assert len(ga_sample.families) - len(ga_sample.agents) <= 1
     assert len(random.sample(ga_sample.families, len(ga_sample.families))[0]) == 4
-    assert len([offspring for offspring in ga_sample.families[-1] if offspring.fitness is None])
+    assert len([offspring for offspring in ga_sample.families[-1] if offspring.fitness == 0])
 
 
 def test_mutate(ga_sample: AGeneticAlgorithm):
