@@ -96,6 +96,7 @@ class BaseGeneticAlgorithm(ABC):
     """
     def __init__(self):
         self.agents : List[EvaluableGene] = []
+        self.gene_pool : List[EvaluableGene] = []
 
     def set_evaluation_function(self, fn: Callable[[BaseGene], float]):
         self.evaluation_function: Callable[[BaseGene],float] = fn
@@ -140,9 +141,11 @@ class BaseGeneticAlgorithm(ABC):
         """
         ...
     
-    def evolve(self):
+    def evolve(self) -> List[EvaluableGene]:
         self.reproduction_stage()
         self.crossover_stage()
         self.mutation_stage()
         self.election_stage()
+
+        return self.gene_pool
 
