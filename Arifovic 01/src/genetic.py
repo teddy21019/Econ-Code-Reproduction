@@ -19,7 +19,11 @@ class AGene(BaseGene):
     @classmethod
     def generate_gene(cls):
         return (np.random.rand(cls.N) >= 0.5)
-    
+
+    @classmethod
+    def validate_gene(cls, gene: 'AGene') -> bool:
+        return cls.validate(gene.string) 
+
     @classmethod
     def validate(cls, str:np.ndarray) :
         if not isinstance(str, np.ndarray):
