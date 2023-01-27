@@ -35,16 +35,6 @@ def ga_sample():
 
     return ga
 
-def test_encode():
-    gene = AGene()
-    gene_consumption = gene.consumption_1()
-    gene_portfolio = gene.portfolio()
-
-    a, b = gene.encode()
-
-    assert a == gene_consumption
-    assert b == gene_portfolio
-
 def test_create_gene_list():
     agent_to_register = [EvaluableGene(AGene()) for _ in range(10)]
     ga = AGeneticAlgorithm() 

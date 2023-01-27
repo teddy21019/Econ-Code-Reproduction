@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
-from typing import Callable, List, Tuple, Union
+from typing import Any, Callable, List, Tuple, Union
 from abc import ABC, abstractmethod, abstractclassmethod
+
+import numpy as np
 
 class BaseGene(ABC):
     """
@@ -14,7 +16,7 @@ class BaseGene(ABC):
         if not self.validate(string):
             raise TypeError(f"string type {type(string)} not allowed.")
         
-        self.string = string
+        self.string : Union[np.ndarray, Any] = string
 
         return
 
@@ -26,14 +28,6 @@ class BaseGene(ABC):
     @abstractclassmethod
     def validate(cls, string) -> bool:
         ...
-
-    @abstractmethod
-    def encode(self):
-        """
-            The return type depends on the particular structure considered.
-        """
-        ...
-
 
     @abstractmethod
     def breed(self, gene2:'BaseGene')->Tuple['BaseGene', 'BaseGene']:

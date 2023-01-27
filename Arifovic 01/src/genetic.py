@@ -9,8 +9,6 @@ import numpy as np
 class AGene(BaseGene):
 
     N:int = 30
-    CONSUMPTION_SEG:int = 20
-    LAMBDA_SEG: int = 10
 
     def __init__(self, string : np.ndarray = None):
         self.string : np.ndarray
@@ -36,19 +34,6 @@ class AGene(BaseGene):
             return False
         
         return True
-
-    def encode(self):
-        ## first consumption_seg 
-        return self.consumption_1(), self.portfolio() 
-    
-    def consumption_1(self):
-        code = self.string[:self.CONSUMPTION_SEG]
-        return code.dot(1 << np.arange(self.CONSUMPTION_SEG))
-
-    def portfolio(self):
-        code = self.string[self.CONSUMPTION_SEG: ]
-        assert code.size == self.LAMBDA_SEG
-        return code.dot(1 << np.arange(self.LAMBDA_SEG))
 
     def breed(self, gene2: 'AGene') -> Tuple['AGene', 'AGene']:
         random_position = random.randint(0, self.N - 1)

@@ -1,6 +1,7 @@
 import math
-from typing import Callable, Dict
+from typing import Callable, Dict, Tuple
 import mesa
+import numpy as np
 from src.base.GA import EvaluableGene
 from src.model import CurrencySubstitutionModel
 
@@ -8,6 +9,11 @@ from src.model import CurrencySubstitutionModel
     EvaluableGene is to couple the agents with the genetic algorithm
 """
 class GA_Agent(mesa.Agent):
+
+
+    CONSUMPTION_SEG:int = 20
+    LAMBDA_SEG: int = 10
+
     def __init__(self, unique_id:int, 
                 model:CurrencySubstitutionModel, 
                 evaluable_gene: EvaluableGene, 
@@ -49,7 +55,7 @@ class GA_Agent(mesa.Agent):
         """
 
         ## change to a dict in future
-        self.consumption_1, self.portfolio_1 = self.evaluable_gene.gene.encode() 
+        self.consumption_1, self.portfolio_1 = self._decode()
 
         self.saving = self.endowment_1 - self.consumption_1
         self.currency_1_holding = self.portfolio_1 * self.saving
@@ -77,3 +83,25 @@ class GA_Agent(mesa.Agent):
         except ValueError as ve:
             raise ValueError('Consumption cannot take log.')
 
+    def _decode(self) -> Tuple[float,float]:
+        gene_string: np.ndarray = self.evaluable_gene.gene.string
+
+        return self._decode_consumption_1(gene_string), self._decode_portfolio_1(gene_string)
+
+    def _decode_consumption_1(self, gene_string: np.ndarray) -> float:
+        """
+        The first 20 position of the gene. The implementation uses an `Agene` type for the evaluable gene type
+        so an `np.ndarray` object is expecter and performed. 
+
+        Should not be called except from `self._decode()`
+        """
+        code = gene_string[:self.CONSUMPTION_SEG]
+        return code.dot(1 << np.arange(self.CONSUMPTION_SEG))
+
+    def _decode_portfolio_1(self, gene_string:np.ndarray) -> float:
+        """
+        The last 10 position of the gene.
+        """
+        code = gene_string[self.CONSUMPTION_SEG: ]
+        assert code.size == self.LAMBDA_SEG
+        return code.dot(1 << np.arange(self.LAMBDA_SEG))
