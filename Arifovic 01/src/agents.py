@@ -48,6 +48,11 @@ class GA_Agent(mesa.Agent):
 
         self.current_generation += 1
 
+    def step_through(self)->None:
+        """ This is called only when a potential gene is needed to evaluate its fitness under the current economy """
+        self.young_step()
+        self.old_step()
+
     def young_step(self):
         """
             The young agent decodes its string and calculates its first period consumption 
@@ -73,9 +78,13 @@ class GA_Agent(mesa.Agent):
                                 self.currency_2_holding / price_currency_2
         
 
-        self.evaluable_gene.fitness =  self.evaluate()
+        self.evaluable_gene.fitness =  self._evaluate()
 
-    def evaluate(self) -> float:
+    @property
+    def fitness(self) -> float:
+        return self.evaluable_gene.fitness
+
+    def _evaluate(self) -> float:
         try:
             return math.log(self.consumption_1) + math.log(self.consumption_2)
         except AttributeError:

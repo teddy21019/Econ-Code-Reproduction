@@ -37,9 +37,20 @@ class CurrencySubstitutionModel(mesa.Model):
 
 
     def gene_evaluation_fn(self) ->  Callable[[BaseGene], float]:
+        """
+        A closure that returns a function that takes in a gene and outputs a fitness.
+
+        The fitness is constructed by creating a fake agent that evolve under this economy,
+        without affecting the economy.
+        """
         def ev_fn(gene:BaseGene) -> float:
-            fitness = 0
-            return fitness
+            
+            potential_agent = self.new_agent(gene)
+
+            potential_agent.step_through()
+            """ The evaluable gene object should have the fitness by now"""
+
+            return potential_agent.fitness
         return ev_fn
     
     
