@@ -59,13 +59,21 @@ class GA_Agent(mesa.Agent):
 
         ## self.consuption_2 is first set here to prevent early access to the attribute. 
         ## This prevents an early call of evaluate function
-        self.consumption_2 = 0
+        
+        price_currency_1, price_currency_2 = self.model.calculate_prices() ## need implementation
+
+        # use up all the money to consume
+        self.consumption_2 = self.currency_1_holding / price_currency_1 + \
+                                self.currency_2_holding / price_currency_2
+        
 
         self.evaluable_gene.fitness =  self.evaluate()
 
     def evaluate(self) -> float:
         try:
-            return math.log(self.consumption_1, self.consumption_2)
+            return math.log(self.consumption_1) + math.log(self.consumption_2)
         except AttributeError:
             raise AttributeError("Consumptions not found. Consumptions for each generation must be evaluated properly.") 
+        except ValueError as ve:
+            raise ValueError('Consumption cannot take log.')
 
