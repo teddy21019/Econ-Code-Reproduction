@@ -7,7 +7,6 @@ from mesa.time import RandomActivation
 
 def main():
     ga = AGeneticAlgorithm(p_cross=0.6, p_mut=0.33)
-    ga.register_validation_fn(AGene.validate_gene)
 
     abm_schedular = RandomActivation
     
