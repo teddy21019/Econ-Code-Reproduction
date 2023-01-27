@@ -74,4 +74,6 @@ class GA_Agent(mesa.Agent):
             return math.log(self.consumption_1) + math.log(self.consumption_2)
         except AttributeError:
             raise AttributeError("Consumptions not found. Consumptions for each generation must be evaluated properly.") 
+        except ValueError as ve:
+            raise ValueError('Consumption cannot take log.')
 
