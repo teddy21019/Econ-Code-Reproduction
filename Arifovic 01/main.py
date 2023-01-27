@@ -1,6 +1,4 @@
-from typing import Self
-from src.genetic import AGene, AGeneticAlgorithm
-import numpy as np
+from src.genetic import AGeneticAlgorithm
 
 from src.model import CurrencySubstitutionModel
 from mesa.time import RandomActivation

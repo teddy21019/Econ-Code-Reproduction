@@ -71,7 +71,6 @@ class AGene(BaseGene):
         return AGene(new_string)
 
 
-ValidationFunction = Callable[[BaseGene], bool]
 
 class AGeneticAlgorithm(BaseGeneticAlgorithm):
     def __init__(self, p_cross:float = 0.6, p_mut:float = 0.033):
@@ -79,10 +78,6 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
         self.p_cross = p_cross
         self.p_mut = p_mut
         self.gene_pool = []
-    
-    def register_validation_fn(self, validation_fn: ValidationFunction):
-        self.validate_gene_fn = validation_fn
-        return self 
         
     def add_agent(self, 
                     agent:EvaluableGene) -> None:
