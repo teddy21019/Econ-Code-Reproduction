@@ -1,12 +1,12 @@
 from collections import deque
-from typing import Callable, Deque, Dict, List, Tuple
+from typing import Callable, Deque, Dict, List, Tuple, Type
 import mesa
 from src.agents import GA_Agent
 from src.base.GA import BaseGeneticAlgorithm, BaseGene, EvaluableGene
 from src.genetic import AGene, AGeneticAlgorithm
 
-SchedulerConstructor =  Callable[[mesa.Model], mesa.time.BaseScheduler]
-
+# SchedulerConstructor =  Callable[[mesa.Model], mesa.time.BaseScheduler]
+SchedulerConstructor = Type[mesa.time.BaseScheduler]
 class CurrencySubstitutionModel(mesa.Model):
     def __init__(self, 
                 genetic_algo_class : BaseGeneticAlgorithm,

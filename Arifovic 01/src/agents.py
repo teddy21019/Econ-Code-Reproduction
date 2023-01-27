@@ -1,3 +1,4 @@
+import math
 from typing import Callable, Dict
 import mesa
 from src.base.GA import EvaluableGene
@@ -55,8 +56,16 @@ class GA_Agent(mesa.Agent):
         self.currency_2_holding = (1 - self.portfolio_1) * self.saving
 
     def old_step(self):
-        evaluation_function = self.model.gene_evaluation_fn()
 
-        self.evaluable_gene.fitness = evaluation_function(
-            self.evaluable_gene.gene
-        )
+        ## self.consuption_2 is first set here to prevent early access to the attribute. 
+        ## This prevents an early call of evaluate function
+        self.consumption_2 = 0
+
+        self.evaluable_gene.fitness =  self.evaluate()
+
+    def evaluate(self) -> float:
+        try:
+            return math.log(self.consumption_1, self.consumption_2)
+        except AttributeError:
+            raise AttributeError("Consumptions not found. Consumptions for each generation must be evaluated properly.") 
+
