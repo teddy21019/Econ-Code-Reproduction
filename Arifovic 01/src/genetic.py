@@ -85,16 +85,9 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
         return self 
         
     def add_agent(self, 
-                    agent:EvaluableGene, 
-                    custom_validation_fn: ValidationFunction = None)->None: 
+                    agent:EvaluableGene) -> None:
 
         ## In case there is a custom validation function for the agent.
-        validation_fn : ValidationFunction = self.validate_gene_fn
-        if custom_validation_fn is not None:
-            validation_fn = custom_validation_fn
-
-        if not validation_fn(agent.gene.string):
-            raise ValueError("Could not validate the agent's gene")
         
         ## only append if successfully validated
         self.agents.append(agent)

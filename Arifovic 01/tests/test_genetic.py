@@ -14,6 +14,15 @@ def eval_func(gene:BaseGene):
         print(gene)
         raise e
 
+class WrongGA_Gene(AGene):
+
+    def __init__(self, string: np.ndarray = None):
+        super().__init__(string)
+    
+    @classmethod
+    def validate(cls, str:np.ndarray) :
+        return False
+
 @pytest.fixture
 def ga_sample():
 
@@ -21,13 +30,10 @@ def ga_sample():
     ga = AGeneticAlgorithm() 
     ga.set_evaluation_function(eval_func)
 
-    ga.register_validation_fn(AGene.validate)
 
     ga.register_agents(agent_to_register)
 
     return ga
-
-
 
 def test_encode():
     gene = AGene()
@@ -43,22 +49,15 @@ def test_create_gene_list():
     agent_to_register = [EvaluableGene(AGene()) for _ in range(10)]
     ga = AGeneticAlgorithm() 
 
-    ga.register_validation_fn(AGene.validate)
 
     ga.register_agents(agent_to_register)
 
-def test_require_validation_func():
-    ga = AGeneticAlgorithm()
-
-    with pytest.raises(AttributeError):
-        ga.add_agent(AGene())
 
 
 def test_add_new_agent():
 
     ga = AGeneticAlgorithm() 
 
-    ga.register_validation_fn(AGene.validate)
 
     agents_to_register = [EvaluableGene(AGene()) for _ in range(20)]
 
@@ -68,6 +67,16 @@ def test_add_new_agent():
     ga.register_agents(new_agents_to_register)
 
     assert len(ga.agents) == 30
+
+def test_add_wrong_agent():
+    ga = AGeneticAlgorithm()
+
+    agents_to_register = None
+    with pytest.raises(TypeError):
+        agents_to_register = [EvaluableGene(WrongGA_Gene('111')) for _ in range(20)]
+
+    ga.register_agents(agents_to_register)
+
 
 def test_create_gene():
     valid_string = np.random.rand(30) > 0.8 
@@ -93,7 +102,6 @@ def test_remove_agent():
     
     ga = AGeneticAlgorithm() 
 
-    ga.register_validation_fn(AGene.validate)
 
     agents_to_register = [EvaluableGene(AGene()) for _ in range(20)]
 
@@ -110,7 +118,6 @@ def test_ga_same_gene_diff_obj():
 
     ga = AGeneticAlgorithm() 
 
-    ga.register_validation_fn(AGene.validate)
 
     agents_to_register = [EvaluableGene(AGene()) for _ in range(20)]
 
@@ -142,7 +149,7 @@ def test_crossover_stage(ga_sample: AGeneticAlgorithm):
     
     assert len(ga_sample.families) - len(ga_sample.agents) <= 1
     assert len(random.sample(ga_sample.families, len(ga_sample.families))[0]) == 4
-    assert len([offspring for offspring in ga_sample.families[-1] if offspring.fitness is None])
+    assert len([offspring for offspring in ga_sample.families[-1] if offspring.fitness == 0])
 
 
 def test_mutate(ga_sample: AGeneticAlgorithm):
