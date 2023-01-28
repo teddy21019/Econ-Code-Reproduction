@@ -35,6 +35,12 @@ class GA_Agent(mesa.Agent):
 
         self.current_generation = gen
 
+        self.consumption_1 = 0.1
+        self.consumption_2 = 0.1
+        self.saving = 0.1
+        self.currency_1_holding = 0.1
+        self.currency_2_holding = 0.1
+
         self.step_function_dict : Dict[int, Callable[..., None]] = {
             0 : self.young_step,
             1 : self.old_step

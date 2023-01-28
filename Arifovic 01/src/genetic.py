@@ -1,3 +1,4 @@
+from audioop import avg
 import random
 from typing import Callable, Tuple, Union, List
 
@@ -55,7 +56,12 @@ class AGene(BaseGene):
 
         return AGene(new_string)
 
-
+def get_gene_avg_fitness(fn:Callable):
+    def dec(*args, **kargs):
+        s:AGeneticAlgorithm = args[0]
+        print(np.mean([a.fitness for a in s.agents]))
+        fn(*args, **kargs)
+    return dec
 
 class AGeneticAlgorithm(BaseGeneticAlgorithm):
     def __init__(self, p_cross:float = 0.6, p_mut:float = 0.033):
@@ -94,6 +100,7 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
             return
         self.remove_agent(agents) 
     
+    @get_gene_avg_fitness
     def reproduction_stage(self) -> None:
         N_TOURNAMENT = len(self.agents)
 
@@ -150,6 +157,8 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
         self.gene_pool = []
         for family in self.families:
             self.gene_pool += family_sort_with_generation(family)
+        print(np.mean([a.fitness for a in self.gene_pool]))
+        print('.')
 
 
 

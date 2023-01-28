@@ -71,7 +71,7 @@ class CurrencySubstitutionModel(mesa.Model):
             Fake generation is constructed for convenient.
         """
         
-        for gen_num in range(self._max_generation_num):
+        for gen_num in reversed(range(self._max_generation_num)):
 
             ## create a scheduler for this gen
 
@@ -80,7 +80,8 @@ class CurrencySubstitutionModel(mesa.Model):
             ## add agents into scheduler
             for _ in range(self.n_agents):
 
-                a = self.new_agent(AGene(), gen_num=0)
+                a = self.new_agent(AGene(), gen_num)
+                a.step_through()
                 gen_scheduler.add(a)
             
             # add the scheduler for this generation into the generation_list deque
@@ -117,6 +118,8 @@ class CurrencySubstitutionModel(mesa.Model):
         self.generation_list[0].step()
 
         self.calculate_prices()
+
+        print(self.currency_prices)
 
         ## then the old moves and calculate their consumption
         self.generation_list[1].step()
