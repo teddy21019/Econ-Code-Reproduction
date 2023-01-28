@@ -66,7 +66,7 @@ class GA_Agent(mesa.Agent):
         ## self.consuption_2 is first set here to prevent early access to the attribute. 
         ## This prevents an early call of evaluate function
         
-        price_currency_1, price_currency_2 = self.model.calculate_prices() ## need implementation
+        price_currency_1, price_currency_2 = self.model.currency_prices ## need implementation
 
         # use up all the money to consume
         self.consumption_2 = self.currency_1_holding / price_currency_1 + \

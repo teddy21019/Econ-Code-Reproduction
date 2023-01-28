@@ -4,6 +4,8 @@ import mesa
 from src.agents import GA_Agent
 from src.base.GA import BaseGeneticAlgorithm, BaseGene, EvaluableGene
 from src.genetic import AGene, AGeneticAlgorithm
+import numpy as np
+
 
 # SchedulerConstructor =  Callable[[mesa.Model], mesa.time.BaseScheduler]
 SchedulerConstructor = Type[mesa.time.BaseScheduler]
@@ -23,11 +25,20 @@ class CurrencySubstitutionModel(mesa.Model):
         self.scheduler_constructor  : SchedulerConstructor = scheduler_constructor
 
         ## initialize currenct price
-        self.p1         : float = 1
-        self.p2         : float = 1
+        self._p1         : float = 1
+        self._p2         : float = 1
+        ## stores previous price
+        self._Lp1        : float = 1
+        self._Lp2        : float = 1
 
-        self.Lp1        : float = 1
-        self.Lp2        : float = 1
+        ## Total money supply
+        ## Initially set Hi_0 both at 10k
+        self._H1         : float = 100_00
+        self._H2         : float = 100_00
+        ## Stores the previous money supply
+        self._LH1        : float = 100_00
+        self._LH2        : float = 100_00
+
 
         self.generation_list : Deque[mesa.time.BaseScheduler] = deque(maxlen=generation_num)
         self._max_generation_num = generation_num
@@ -112,8 +123,26 @@ class CurrencySubstitutionModel(mesa.Model):
         """
             Calculates the currency price for 1 and 2 
         """
-        pass
-    
+        ## store last price
+        self._Lp1 = self._p1
+        self._Lp2 = self._p2
+
+        ## calculate price
+        sum_of_agent_c1_saving = np.sum([ya.currency_1_holding for ya in self.youngs])
+        sum_of_agent_c2_saving = np.sum([ya.currency_2_holding for ya in self.youngs])
+        
+        self._p1 = self._LH1 / (sum_of_agent_c1_saving - self.G_1)
+        self._p2 = self._LH2 / (sum_of_agent_c2_saving - self.G_2)
+
+        ## store last supply
+        self._LH1 = self._H1
+        self._LH2 = self._H2
+
+        ## calculate next supply
+        self._H1 = self._p1 * self.G_1 + self._LH1
+        self._H2 = self._p2 * self.G_2 + self._LH2
+
+
     def evolve(self) -> List[EvaluableGene]:
 
         self.ga.clear()
@@ -143,3 +172,11 @@ class CurrencySubstitutionModel(mesa.Model):
     @property
     def elders(self) -> List[GA_Agent]:
         return self.generation_list[-1].agents # type: ignore
+
+    @property
+    def youngs(self) -> List[GA_Agent]:
+        return self.generation_list[0].agents # type: ignore
+
+    @property
+    def currency_prices(self)->Tuple[float, float]:
+        return self._p1, self._p2
