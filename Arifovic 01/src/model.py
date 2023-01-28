@@ -43,8 +43,8 @@ class CurrencySubstitutionModel(mesa.Model):
         self.generation_list : Deque[mesa.time.BaseScheduler] = deque(maxlen=generation_num)
         self._max_generation_num = generation_num
 
+        self.unique_id_generator = (i for i in range(100_000_00))
         self.generate_agents()
-        self.unique_id_generator = (i for i in range(1e5))
 
 
     def gene_evaluation_fn(self) ->  Callable[[BaseGene], float]:

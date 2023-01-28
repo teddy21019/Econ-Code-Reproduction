@@ -14,8 +14,9 @@ def main():
                 G_1                 =   10,
                 G_2                 =   1,
                 scheduler_constructor =   abm_schedular)
-    
-    model.random.shuffle
+
+    for _ in tqdm(range(100)):
+        model.step()    
 
 if __name__ == "__main__":
     main()

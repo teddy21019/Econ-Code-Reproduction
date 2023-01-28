@@ -3,7 +3,6 @@ from typing import Callable, Dict, Tuple
 import mesa
 import numpy as np
 from src.base.GA import EvaluableGene
-from src.model import CurrencySubstitutionModel
 
 """
     EvaluableGene is to couple the agents with the genetic algorithm
@@ -15,7 +14,7 @@ class GA_Agent(mesa.Agent):
     LAMBDA_SEG: int = 10
 
     def __init__(self, unique_id:int, 
-                model:CurrencySubstitutionModel, 
+                model, 
                 evaluable_gene: EvaluableGene, 
                 gen:int = 0,
                 endowment_1: float = 10, 
@@ -29,7 +28,7 @@ class GA_Agent(mesa.Agent):
             A better method : isolate another abstract model that implements the evaluation function method 
             instead of directly type hinting a CurrencySubstitution model to decrease coupling.
         """
-        self.model : CurrencySubstitutionModel  = model
+        self.model = model
         self.evaluable_gene: EvaluableGene = evaluable_gene
         self.endowment_1 = endowment_1
         self.endowment_2 = endowment_2
@@ -105,7 +104,7 @@ class GA_Agent(mesa.Agent):
         Should not be called except from `self._decode()`
         """
         code = gene_string[:self.CONSUMPTION_SEG]
-        return code.dot(1 << np.arange(self.CONSUMPTION_SEG))
+        return code.dot(1 << np.arange(self.CONSUMPTION_SEG)) / 2**(1 + self.CONSUMPTION_SEG) * self.endowment_1
 
     def _decode_portfolio_1(self, gene_string:np.ndarray) -> float:
         """
@@ -113,4 +112,4 @@ class GA_Agent(mesa.Agent):
         """
         code = gene_string[self.CONSUMPTION_SEG: ]
         assert code.size == self.LAMBDA_SEG
-        return code.dot(1 << np.arange(self.LAMBDA_SEG))
+        return code.dot(1 << np.arange(self.LAMBDA_SEG)) / 2**( 1 + self.LAMBDA_SEG)

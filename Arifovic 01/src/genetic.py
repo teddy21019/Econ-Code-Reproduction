@@ -147,6 +147,7 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
 
 
     def election_stage(self):
+        self.gene_pool = []
         for family in self.families:
             self.gene_pool += family_sort_with_generation(family)
 
