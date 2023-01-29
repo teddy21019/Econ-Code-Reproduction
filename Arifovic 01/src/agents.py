@@ -1,8 +1,13 @@
+from __future__ import annotations
 import math
-from typing import Callable, Dict, Tuple
+from typing import Callable, Dict, Tuple, TYPE_CHECKING
 import mesa
 import numpy as np
 from src.base.GA import EvaluableGene
+
+if TYPE_CHECKING:
+    """ See https://stackoverflow.com/questions/39740632/python-type-hinting-without-cyclic-imports """
+    from src.model import CurrencySubstitutionModel
 
 """
     EvaluableGene is to couple the agents with the genetic algorithm
@@ -14,7 +19,7 @@ class GA_Agent(mesa.Agent):
     LAMBDA_SEG: int = 10
 
     def __init__(self, unique_id:int, 
-                model, 
+                model: CurrencySubstitutionModel, 
                 evaluable_gene: EvaluableGene, 
                 gen:int = 0,
                 endowment_1: float = 10, 
@@ -28,7 +33,7 @@ class GA_Agent(mesa.Agent):
             A better method : isolate another abstract model that implements the evaluation function method 
             instead of directly type hinting a CurrencySubstitution model to decrease coupling.
         """
-        self.model = model
+        self.model: CurrencySubstitutionModel = model
         self.evaluable_gene: EvaluableGene = evaluable_gene
         self.endowment_1 = endowment_1
         self.endowment_2 = endowment_2
@@ -79,8 +84,8 @@ class GA_Agent(mesa.Agent):
         return_currency_1, return_currency_2 = self.model.currency_return ## need implementation
 
         # use up all the money to consume
-        self.consumption_2 = self.endowment_2 + self.currency_1_holding / return_currency_1 + \
-                                self.currency_2_holding / return_currency_2
+        self.consumption_2 = self.endowment_2 + self.currency_1_holding * return_currency_1 + \
+                                self.currency_2_holding * return_currency_2
         
 
         self.evaluable_gene.fitness =  self._evaluate()

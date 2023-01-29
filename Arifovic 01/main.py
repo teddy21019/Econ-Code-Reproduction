@@ -11,8 +11,8 @@ def main():
     model = CurrencySubstitutionModel(
                 genetic_algo_class  =   ga, 
                 n_agents            =   30,
-                G_1                 =   10,
-                G_2                 =   1,
+                G_1                 =   0,
+                G_2                 =   9,
                 scheduler_constructor =   abm_schedular)
 
     for _ in tqdm(range(100)):

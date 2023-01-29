@@ -5,7 +5,7 @@ from src.agents import GA_Agent
 from src.base.GA import BaseGeneticAlgorithm, BaseGene, EvaluableGene
 from src.genetic import AGene, AGeneticAlgorithm
 import numpy as np
-
+from src.observer import abm_observer
 
 # SchedulerConstructor =  Callable[[mesa.Model], mesa.time.BaseScheduler]
 SchedulerConstructor = Type[mesa.time.BaseScheduler]
@@ -33,11 +33,11 @@ class CurrencySubstitutionModel(mesa.Model):
 
         ## Total money supply
         ## Initially set Hi_0 both at 10k
-        self._H1         : float = 100_00
-        self._H2         : float = 100_00
+        self._H1         : float = 100
+        self._H2         : float = 100
         ## Stores the previous money supply
-        self._LH1        : float = 100_00
-        self._LH2        : float = 100_00
+        self._LH1        : float = 100
+        self._LH2        : float = 100
 
 
         self.generation_list : Deque[mesa.time.BaseScheduler] = deque(maxlen=generation_num)
@@ -45,6 +45,8 @@ class CurrencySubstitutionModel(mesa.Model):
 
         self.unique_id_generator = (i for i in range(100_000_00))
         self.generate_agents()
+
+        self.datacollector = mesa.DataCollector(abm_observer)
 
 
     def gene_evaluation_fn(self) ->  Callable[[BaseGene], float]:
@@ -81,7 +83,7 @@ class CurrencySubstitutionModel(mesa.Model):
             for _ in range(self.n_agents):
 
                 a = self.new_agent(AGene(), gen_num)
-                a.step_through()
+                a.step_through()            ## step through to obtain initial value of consumption
                 gen_scheduler.add(a)
             
             # add the scheduler for this generation into the generation_list deque
@@ -130,7 +132,7 @@ class CurrencySubstitutionModel(mesa.Model):
 
         self.new_generation(gene_pool=gene_pool)
 
-
+        self.datacollector.collect(self)
 
 
     def calculate_prices(self) -> Tuple[float, float]:   # type: ignore        
@@ -194,3 +196,7 @@ class CurrencySubstitutionModel(mesa.Model):
     @property
     def currency_prices(self)->Tuple[float, float]:
         return self._p1, self._p2
+    
+    @property
+    def currency_return(self) -> Tuple[float, float]:
+        return self._Lp1/self._p1 , self._Lp2/self._p2
