@@ -100,7 +100,7 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
             return
         self.remove_agent(agents) 
     
-    @get_gene_avg_fitness
+    # @get_gene_avg_fitness
     def reproduction_stage(self) -> None:
         N_TOURNAMENT = len(self.agents)
 
@@ -157,8 +157,6 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
         self.gene_pool = []
         for family in self.families:
             self.gene_pool += family_sort_with_generation(family)
-        print(np.mean([a.fitness for a in self.gene_pool]))
-        print('.')
 
 
 
