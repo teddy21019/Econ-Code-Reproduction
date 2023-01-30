@@ -1,4 +1,5 @@
 from collections import deque
+from math import isnan
 from typing import Callable, Deque, Dict, List, Tuple, Type
 import mesa
 from src.agents import GA_Agent
@@ -199,4 +200,23 @@ class CurrencySubstitutionModel(mesa.Model):
     
     @property
     def currency_return(self) -> Tuple[float, float]:
-        return self._Lp1/self._p1 , self._Lp2/self._p2
+        """
+        ## Breaking of the double currency system
+
+        During the aggregate step, the currency price might become negative infinity, 
+        causing nan to apprear during runtime. 
+
+        ## Solution
+        Whenever there is negative "return" of a nan appearing in the price, 
+        make it 0, indicating that it is simply valueless for the agents.
+        """
+        return_1, return_2 = 0.0 , 0.0
+        if not (isnan(self._p1) or isnan(self._Lp1)):
+            return_1 = max(self._Lp1 / self._p1, 0)
+
+        
+        if not (isnan(self._p2) or isnan(self._Lp2)):
+            return_2 = max(self._Lp2 / self._p2, 0)
+
+        
+        return return_1, return_2
