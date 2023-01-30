@@ -115,7 +115,7 @@ class GA_Agent(mesa.Agent):
         Should not be called except from `self._decode()`
         """
         code = gene_string[:self.CONSUMPTION_SEG]
-        return code.dot(1 << np.arange(self.CONSUMPTION_SEG)) / 2**(1 + self.CONSUMPTION_SEG) * self.endowment_1
+        return code.dot(1 << np.arange(self.CONSUMPTION_SEG)) / (2**self.CONSUMPTION_SEG - 1) * self.endowment_1
 
     def _decode_portfolio_1(self, gene_string:np.ndarray) -> float:
         """
@@ -123,4 +123,4 @@ class GA_Agent(mesa.Agent):
         """
         code = gene_string[self.CONSUMPTION_SEG: ]
         assert code.size == self.LAMBDA_SEG
-        return code.dot(1 << np.arange(self.LAMBDA_SEG)) / 2**( 1 + self.LAMBDA_SEG)
+        return code.dot(1 << np.arange(self.LAMBDA_SEG)) / (2**self.LAMBDA_SEG - 1)
