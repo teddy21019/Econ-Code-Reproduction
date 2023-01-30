@@ -15,14 +15,18 @@ class CurrencySubstitutionModel(mesa.Model):
                 genetic_algo_class : BaseGeneticAlgorithm,
                 scheduler_constructor: SchedulerConstructor,
                 n_agents: int   = 30,
-                G_1     : float = 10,
-                G_2     : float = 1,
+                G_1     : float = 0,
+                G_2     : float = 10,
+                endowment_1 : float = 10, 
+                endowment_2 : float = 1,
                 generation_num : int  = 2
                 ):
         self.ga         : BaseGeneticAlgorithm     = genetic_algo_class
         self.n_agents   : int                   = n_agents      ## agents per generation
         self.G_1        : float                 = G_1
         self.G_2        : float                 = G_2
+        self.endowment_1 : float                = endowment_1
+        self.endowment_2 : float                = endowment_2
         self.scheduler_constructor  : SchedulerConstructor = scheduler_constructor
 
         ## initialize currenct price
@@ -99,8 +103,8 @@ class CurrencySubstitutionModel(mesa.Model):
             unique_id=new_id,
             model=self,
             evaluable_gene=evaluable_gene,  ## dependency injection of gene+value object
-            endowment_1=10,
-            endowment_2=1,
+            endowment_1=self.endowment_1,
+            endowment_2=self.endowment_2,
             gen=gen_num)
 
     def step(self):
@@ -122,7 +126,6 @@ class CurrencySubstitutionModel(mesa.Model):
 
         self.calculate_prices()
 
-        print(self.currency_prices)
 
         ## then the old moves and calculate their consumption
         self.generation_list[1].step()
