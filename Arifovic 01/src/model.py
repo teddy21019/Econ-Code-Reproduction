@@ -6,7 +6,8 @@ from src.agents import GA_Agent
 from src.base.GA import BaseGeneticAlgorithm, BaseGene, EvaluableGene
 from src.genetic import AGene, AGeneticAlgorithm
 import numpy as np
-from src.observer import abm_observer
+import pandas as pd
+
 
 # SchedulerConstructor =  Callable[[mesa.Model], mesa.time.BaseScheduler]
 SchedulerConstructor = Type[mesa.time.BaseScheduler]
@@ -49,9 +50,11 @@ class CurrencySubstitutionModel(mesa.Model):
         self._max_generation_num = generation_num
 
         self.unique_id_generator = (i for i in range(100_000_00))
+        self.time_generator = (t for t in range(100_000_00))
+
         self.generate_agents()
 
-        self.datacollector = mesa.DataCollector(abm_observer)
+        self.datacollector : List[Dict[str, float]] = []
 
 
     def gene_evaluation_fn(self) ->  Callable[[BaseGene], float]:
@@ -130,13 +133,16 @@ class CurrencySubstitutionModel(mesa.Model):
         ## then the old moves and calculate their consumption
         self.generation_list[1].step()
 
+        ## collect data before evolve
+        self.collect_data()
+
+
         ## at this time, the old agent should already evaluate its fitness 
 
         gene_pool: List[EvaluableGene]= self.evolve()
 
         self.new_generation(gene_pool=gene_pool)
 
-        self.datacollector.collect(self)
 
 
     def calculate_prices(self) -> Tuple[float, float]:   # type: ignore        
@@ -171,7 +177,6 @@ class CurrencySubstitutionModel(mesa.Model):
             [agent.evaluable_gene for agent in self.elders]
         )
         return self.ga.evolve()
-
 
 
     def new_generation(self, gene_pool:List[EvaluableGene]):
@@ -223,3 +228,15 @@ class CurrencySubstitutionModel(mesa.Model):
 
         
         return return_1, return_2
+    
+
+    def collect_data(self):
+        new_row = {
+                'T': next(self.time_generator) ,
+                'Exchange Rate' : self._p1/self._p2,
+                'Inflation Currency 1' : self._Lp1/self._p1,
+                'Avg. Consumption 1 ': np.mean([ya.consumption_1 for ya in self.youngs]),
+                'Avg. Portfolio 1'  :  np.mean([ya.portfolio_1 for ya in self.youngs]),
+                'Avg. fitness'      :  np.mean([ea.fitness for ea in self.elders])
+            }
+        self.datacollector.append(new_row)

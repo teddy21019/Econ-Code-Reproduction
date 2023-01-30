@@ -1,25 +1,28 @@
-from __future__ import annotations
-from statistics import mode
-from mesa import DataCollector
-from typing import TYPE_CHECKING
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from typing import Any, Dict
 
-if TYPE_CHECKING:
-    from src.model import CurrencySubstitutionModel
+from pandas import DataFrame
 
-def report_ex_rate(model:CurrencySubstitutionModel):
-    c1,c2 = model.currency_prices
-    return c1/c2
 
-def report_inf_rate(model: CurrencySubstitutionModel):
-    return model._p1 / model._Lp1
+class DataCollector:
+    agent_data: DataFrame   = DataFrame()
+    model_data: DataFrame   = DataFrame()
+    _agent_data_dict : Dict[str, Any] = {}
+    _model_data_dict : Dict[str, Any] = {}
+    time      : int         =   field(default=0)
 
-model_reporter = {
-    "Exchange Rate" : report_ex_rate,
-    "Inflation Rate": report_inf_rate
-}
+    def add_agent_data(self, id, key, value):
+        pass
 
-agent_reporter = {
-    "First Consumption" : 'consumption_1'
-}
+    def add_model_data(self, *args, **kwargs):
+        pass 
 
-abm_observer = model_reporter
+    def next_tick(self):
+        self.time += 1
+        
+    
+    @property
+    def result(self):
+        return self.agent_data, self.model_data
+
