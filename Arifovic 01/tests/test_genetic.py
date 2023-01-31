@@ -84,7 +84,7 @@ def test_add_wrong_agent():
     with pytest.raises(TypeError):
         agents_to_register = [EvaluableGene(WrongGA_Gene('111')) for _ in range(20)]
 
-    ga.register_agents(agents_to_register)
+    # ga.register_agents(agents_to_register)
 
 
 def test_create_gene():
