@@ -3,7 +3,8 @@ import math
 from typing import Callable, Dict, Tuple, TYPE_CHECKING
 import mesa
 import numpy as np
-from src.base.GA import EvaluableGene
+from src.base.GA import BaseGene, EvaluableGene
+from src.factory import DecodeFunction
 
 if TYPE_CHECKING:
     """ See https://stackoverflow.com/questions/39740632/python-type-hinting-without-cyclic-imports """
@@ -21,9 +22,11 @@ class GA_Agent(mesa.Agent):
     def __init__(self, unique_id:int, 
                 model: CurrencySubstitutionModel, 
                 evaluable_gene: EvaluableGene, 
+                decoder: DecodeFunction,
                 gen:int = 0,
                 endowment_1: float = 10, 
-                endowment_2: float = 1):
+                endowment_2: float = 1
+                ):
         super().__init__(unique_id, model)
 
         """ Necessary of overriding the model declaration :
@@ -35,6 +38,7 @@ class GA_Agent(mesa.Agent):
         """
         self.model: CurrencySubstitutionModel = model
         self.evaluable_gene: EvaluableGene = evaluable_gene
+        self.decoder: DecodeFunction = decoder
         self.endowment_1 = endowment_1
         self.endowment_2 = endowment_2
 
@@ -103,24 +107,23 @@ class GA_Agent(mesa.Agent):
             raise ValueError('Consumption cannot take log.')
 
     def _decode(self) -> Tuple[float,float]:
-        gene_string: np.ndarray = self.evaluable_gene.gene.string
+        gene = self.evaluable_gene.gene
 
-        return self._decode_consumption_1(gene_string), self._decode_portfolio_1(gene_string)
+        return self._decode_consumption_1(gene), self._decode_portfolio_1(gene)
 
-    def _decode_consumption_1(self, gene_string: np.ndarray) -> float:
+    def _decode_consumption_1(self, gene: BaseGene) -> float:
         """
         The first 20 position of the gene. The implementation uses an `Agene` type for the evaluable gene type
         so an `np.ndarray` object is expecter and performed. 
 
         Should not be called except from `self._decode()`
         """
-        code = gene_string[:self.CONSUMPTION_SEG]
-        return code.dot(1 << np.arange(self.CONSUMPTION_SEG)) / (2**self.CONSUMPTION_SEG - 1) * self.endowment_1
+        decoded, n = self.decoder(gene, 'consumption_1')
+        return decoded / (2**n- 1) * self.endowment_1
 
-    def _decode_portfolio_1(self, gene_string:np.ndarray) -> float:
+    def _decode_portfolio_1(self, gene: BaseGene) -> float:
         """
         The last 10 position of the gene.
         """
-        code = gene_string[self.CONSUMPTION_SEG: ]
-        assert code.size == self.LAMBDA_SEG
-        return code.dot(1 << np.arange(self.LAMBDA_SEG)) / (2**self.LAMBDA_SEG - 1)
+        decoded, n = self.decoder(gene, 'portfolio_1')
+        return decoded / (2**n - 1)

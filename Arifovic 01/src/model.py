@@ -5,6 +5,7 @@ import mesa
 from src.agents import GA_Agent
 from src.base.GA import BaseGeneticAlgorithm, BaseGene, EvaluableGene
 from src.genetic import AGene, AGeneticAlgorithm
+from src.factory import gene_factory
 import numpy as np
 import pandas as pd
 
@@ -52,7 +53,18 @@ class CurrencySubstitutionModel(mesa.Model):
         self.unique_id_generator = (i for i in range(100_000_00))
         self.time_generator = (t for t in range(100_000_00))
 
+
+        decoding_list = [
+            (20, 'consumption_1'),
+            (10, 'portfolio_1')
+        ]
+        self.gene_class, self.decode = gene_factory(
+            decoding_list, AGene
+        )
+
         self.generate_agents()
+
+
 
         self.datacollector : List[Dict[str, float]] = []
 
@@ -90,7 +102,7 @@ class CurrencySubstitutionModel(mesa.Model):
             ## add agents into scheduler
             for _ in range(self.n_agents):
 
-                a = self.new_agent(AGene(), gen_num)
+                a = self.new_agent(self.gene_class(), gen_num)
                 a.step_through()            ## step through to obtain initial value of consumption
                 gen_scheduler.add(a)
             
@@ -106,6 +118,7 @@ class CurrencySubstitutionModel(mesa.Model):
             unique_id=new_id,
             model=self,
             evaluable_gene=evaluable_gene,  ## dependency injection of gene+value object
+            decoder= self.decode,
             endowment_1=self.endowment_1,
             endowment_2=self.endowment_2,
             gen=gen_num)
