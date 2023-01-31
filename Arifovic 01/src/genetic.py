@@ -37,6 +37,9 @@ class AGene(BaseGene):
         return True
 
     def breed(self, gene2: 'AGene') -> Tuple['AGene', 'AGene']:
+        if not same_breed(self, gene2):
+            raise ValueError(f"{self} and {gene2} are not same type of gene")
+        
         random_position = random.randint(0, self.N - 1)
 
         string_11 = self.string[:random_position]
@@ -47,14 +50,15 @@ class AGene(BaseGene):
 
         offspring_string_1 = np.concatenate([string_11, string_22])
         offspring_string_2 = np.concatenate([string_21, string_12])
-        return AGene(offspring_string_1), AGene(offspring_string_2)
+
+        return type(self)(offspring_string_1), type(self)(offspring_string_2)
     
     def mutate(self) -> 'AGene':
         random_position = random.randint(0, self.N - 1)
         new_string = self.string.copy()
         new_string[random_position] = not new_string[random_position]
 
-        return AGene(new_string)
+        return type(self)(new_string)
 
 def get_gene_avg_fitness(fn:Callable):
     def dec(*args, **kargs):
@@ -171,3 +175,7 @@ def family_sort_with_generation(family: List[EvaluableGene]) -> List[EvaluableGe
         pytest.set_trace()
         raise a
     return list(map(lambda x:x[0] ,sorted_family[:2]))
+
+
+def same_breed(a, b) -> bool:
+    return type(a) == type(b)
