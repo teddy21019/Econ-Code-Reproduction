@@ -1,6 +1,6 @@
 from audioop import avg
 import random
-from typing import Callable, Tuple, Union, List
+from typing import Callable, Optional, Tuple, Union, List
 
 import pytest
 
@@ -11,7 +11,7 @@ class AGene(BaseGene):
 
     N:int = 30
 
-    def __init__(self, string : np.ndarray = None):
+    def __init__(self, string : Optional[np.ndarray] = None):
         self.string : np.ndarray
         super().__init__(string)
 
@@ -87,9 +87,10 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
         if type(new_agents) is list:
             [self.add_agent(agent) for agent in new_agents]
             return 
-
-        self.add_agent(new_agents)
-        return 
+        if type(new_agents) is EvaluableGene:
+            self.add_agent(new_agents)
+            return 
+        raise ValueError("Invalid agent type or collection type")
 
     def remove_agent(self, agent:EvaluableGene):
         ## check if in list
@@ -102,7 +103,10 @@ class AGeneticAlgorithm(BaseGeneticAlgorithm):
         if type(agents) is list:
             [self.remove_agent(agent) for agent in agents]
             return
-        self.remove_agent(agents) 
+        if type(agents) is EvaluableGene:
+            self.remove_agent(agents) 
+            return 
+        raise ValueError(f"Invalid agent type or collection {agents}")
     
     # @get_gene_avg_fitness
     def reproduction_stage(self) -> None:
