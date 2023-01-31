@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 from src.base.GA import BaseGene
 from src.genetic import AGene, AGeneticAlgorithm, EvaluableGene, family_sort_with_generation
-
+from src.factory import gene_factory
 AGENT_N = 1000
 
 
@@ -23,10 +23,29 @@ class WrongGA_Gene(AGene):
     def validate(cls, str:np.ndarray) :
         return False
 
-@pytest.fixture
-def ga_sample():
+def ga_sample_1():
 
     agent_to_register = [EvaluableGene(AGene(), random.randint(1,10)) for _ in range(AGENT_N)]
+    ga = AGeneticAlgorithm() 
+    ga.set_evaluation_function(eval_func)
+
+
+    ga.register_agents(agent_to_register)
+
+    return ga
+
+def ga_sample_2():
+
+    custom_decoding_segment = [
+        (2, 'consumption_1'),
+        (2, 'consumption_2'),
+        (5, 'portfolio_1'),
+        (5, 'portfolio_2')
+    ]
+
+    custom_gene, decoder = gene_factory(custom_decoding_segment, AGene)
+
+    agent_to_register = [EvaluableGene(custom_gene(), random.randint(1,10)) for _ in range(AGENT_N)]
     ga = AGeneticAlgorithm() 
     ga.set_evaluation_function(eval_func)
 
@@ -119,6 +138,7 @@ def test_ga_same_gene_diff_obj():
     assert agents_to_register[0] in ga.agents
 
 
+@pytest.mark.parametrize("ga_sample", [ga_sample_1(), ga_sample_2()])
 def test_reproduction_stage(ga_sample: AGeneticAlgorithm):
     def get_fitness_sum(l):
         return sum([agent.fitness for agent in l])
@@ -129,6 +149,7 @@ def test_reproduction_stage(ga_sample: AGeneticAlgorithm):
     post_fitness_sum = get_fitness_sum(ga_sample.winner_agents)
     assert pre_fitness_sum < post_fitness_sum
 
+@pytest.mark.parametrize("ga_sample", [ga_sample_1(), ga_sample_2()])
 def test_crossover_stage(ga_sample: AGeneticAlgorithm):
 
     ga_sample.reproduction_stage()
@@ -142,6 +163,7 @@ def test_crossover_stage(ga_sample: AGeneticAlgorithm):
     assert len([offspring for offspring in ga_sample.families[-1] if offspring.fitness == 0])
 
 
+@pytest.mark.parametrize("ga_sample", [ga_sample_1(), ga_sample_2()])
 def test_mutate(ga_sample: AGeneticAlgorithm):
     ga_sample.p_mut = 1
 
@@ -169,6 +191,7 @@ def test_family_sort_with_generation():
     assert (mom.gene.string == remaining[1].gene.string).all()
     assert (son.gene.string == remaining[0].gene.string).all()
 
+@pytest.mark.parametrize("ga_sample", [ga_sample_1(), ga_sample_2()])
 def test_whole_process_num(ga_sample: AGeneticAlgorithm):
 
     ga_sample.reproduction_stage()
